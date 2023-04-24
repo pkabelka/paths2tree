@@ -39,12 +39,14 @@ func Paths2Tree(r io.Reader) <-chan Path2TreeRes {
 			depth = len(splitPath) - 1
 
 			if depth > 0 && splitPath[len(splitPath)-2] != lastDir {
+				// check if the path to item was visited before
 				found := false
 				for _, e := range pathHist {
 					if e.depth == depth && litu.Equal(e.path, splitPath[:len(splitPath)-1]) {
 						found = true
 					}
 				}
+				// print the newly entered directory
 				if !found {
 					treeLevel += fmt.Sprintf("%s%s\n", strings.Repeat("|   ", depth-1), splitPath[len(splitPath)-2])
 					lastDir = splitPath[len(splitPath)-2]
@@ -52,6 +54,7 @@ func Paths2Tree(r io.Reader) <-chan Path2TreeRes {
 				}
 			}
 
+			// print the current item
 			treePrefix := strings.Repeat("|   ", depth)
 			treeLevel += fmt.Sprintf("%s%s\n", treePrefix, splitPath[len(splitPath)-1])
 
