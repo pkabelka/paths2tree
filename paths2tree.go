@@ -13,13 +13,13 @@ import (
 
 type Path2TreeRes struct {
 	TreeLevel string
-	Err error
+	Err       error
 }
 
 func Paths2Tree(r io.Reader) <-chan Path2TreeRes {
 	type PathHist struct {
 		depth int
-		path []string
+		path  []string
 	}
 
 	scanner := bufio.NewScanner(r)
@@ -36,7 +36,7 @@ func Paths2Tree(r io.Reader) <-chan Path2TreeRes {
 			treeLevel = ""
 			path := scanner.Text()
 			splitPath := strings.Split(path, "/")
-			depth = len(splitPath)-1
+			depth = len(splitPath) - 1
 
 			if depth > 0 && splitPath[len(splitPath)-2] != lastDir {
 				found := false
