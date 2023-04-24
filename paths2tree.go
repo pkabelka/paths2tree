@@ -26,7 +26,7 @@ func Paths2Tree(r io.Reader) <-chan Path2TreeRes {
 
 	depth := 0
 	var lastDir string
-	pathHist := make([]PathHist, 0, 64)
+	pathHist := make([]PathHist, 0, 256)
 	treeLevel := ""
 	ch := make(chan Path2TreeRes)
 
