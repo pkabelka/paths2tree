@@ -7,8 +7,6 @@ import (
 	"log"
 	"os"
 	"strings"
-
-	"github.com/pkabelka/litu"
 )
 
 type Path2TreeRes struct {
@@ -17,16 +15,11 @@ type Path2TreeRes struct {
 }
 
 func Paths2Tree(r io.Reader) <-chan Path2TreeRes {
-	type PathHist struct {
-		depth int
-		path  []string
-	}
-
 	scanner := bufio.NewScanner(r)
 
 	depth := 0
 	var lastDir string
-	pathHist := make([]PathHist, 0, 256)
+	pathHist := make(map[string]struct{}, 256)
 	treeLevel := ""
 	ch := make(chan Path2TreeRes)
 
@@ -35,22 +28,20 @@ func Paths2Tree(r io.Reader) <-chan Path2TreeRes {
 		for scanner.Scan() {
 			treeLevel = ""
 			path := scanner.Text()
+
 			splitPath := strings.Split(path, "/")
 			depth = len(splitPath) - 1
 
-			if depth > 0 && splitPath[len(splitPath)-2] != lastDir {
-				// check if the path to item was visited before
-				found := false
-				for _, e := range pathHist {
-					if e.depth == depth && litu.Equal(e.path, splitPath[:len(splitPath)-1]) {
-						found = true
-					}
-				}
-				// print the newly entered directory
-				if !found {
+			// subdirectories
+			lastSep := strings.LastIndexByte(path, '/')
+			if lastSep >= 0 && depth > 0 && splitPath[len(splitPath)-2] != lastDir {
+				pathToDir := path[:lastSep]
+				// check if the path to item was visited before and print the
+				// newly entered directory
+				if _, ok := pathHist[pathToDir]; !ok {
 					treeLevel += fmt.Sprintf("%s%s\n", strings.Repeat("|   ", depth-1), splitPath[len(splitPath)-2])
 					lastDir = splitPath[len(splitPath)-2]
-					pathHist = append(pathHist, PathHist{depth, splitPath[:len(splitPath)-1]})
+					pathHist[pathToDir] = struct{}{}
 				}
 			}
 
