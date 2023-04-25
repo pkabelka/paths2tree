@@ -36,8 +36,8 @@ func Paths2Tree(r io.Reader) <-chan Path2TreeRes {
 			lastSep := strings.LastIndexByte(path, '/')
 			if lastSep >= 0 && depth > 0 && splitPath[len(splitPath)-2] != lastDir {
 				pathToDir := path[:lastSep]
-				// check if the path to item was visited before and print the
-				// newly entered directory
+				// print the newly entered directory if the path to item was
+				// not visited before
 				if _, ok := pathHist[pathToDir]; !ok {
 					treeLevel += fmt.Sprintf("%s%s\n", strings.Repeat("|   ", depth-1), splitPath[len(splitPath)-2])
 					lastDir = splitPath[len(splitPath)-2]
@@ -54,6 +54,7 @@ func Paths2Tree(r io.Reader) <-chan Path2TreeRes {
 			}
 			ch <- Path2TreeRes{treeLevel, nil}
 		}
+
 		if err := scanner.Err(); err != nil {
 			ch <- Path2TreeRes{"", err}
 		}
